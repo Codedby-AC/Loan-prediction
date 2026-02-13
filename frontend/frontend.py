@@ -51,7 +51,7 @@ if st.button("Predict Loan Status"):
             else:
                 st.error("❌ Loan Rejected")
 
-            st.info(f"Approval Probability: {result['probability']:.2f}")
+            
 
         else:
             st.error("Backend error occurred")
