@@ -75,7 +75,9 @@ import numpy as np
 @app.post("/predict")
 def predict(data: LoanData):
 
-    # 1️⃣ First make numpy array (NOT tensor)
+    import numpy as np
+
+    # 1️⃣ Create numpy array
     input_array = np.array([[
         data.no_of_dependents,
         data.education,
@@ -84,22 +86,28 @@ def predict(data: LoanData):
         data.cibil_score
     ]])
 
-    # 2️⃣ Apply scaler
+    # 2️⃣ Scale input
     input_scaled = scaler.transform(input_array)
 
-    # 3️⃣ Convert scaled data to tensor
+    # 3️⃣ Convert to tensor
     input_tensor = torch.tensor(input_scaled, dtype=torch.float32)
 
-    # 4️⃣ Prediction
+    # 4️⃣ Model prediction (PyTorch style)
     with torch.no_grad():
         output = model(input_tensor)
-        probability = output.item()
-        prediction = 1 if probability > 0.5 else 0
+        probability = output.item()   # sigmoid already applied
+        prediction = 1 if probability > 0.6 else 0
+
+    # 5️⃣ Balanced Hybrid Rule (NOT over-strict)
+    if prediction == 1:
+        if data.cibil_score < 600 and probability < 0.75:
+            prediction = 0
 
     return {
-        "prediction": prediction,
-        "probability": round(probability, 4)
+        "prediction": int(prediction),
+        "probability": float(probability)
     }
+
 
 
 app.add_middleware(
