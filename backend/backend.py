@@ -3,6 +3,9 @@ from pydantic import BaseModel
 import torch
 import os
 import joblib
+
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 # -----------------------------
@@ -99,6 +102,13 @@ def predict(data: LoanData):
     }
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def home():
     return {"message": "Loan prediction api is running 🚀"}
